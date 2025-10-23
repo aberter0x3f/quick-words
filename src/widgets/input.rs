@@ -142,6 +142,22 @@ impl Input {
     self.reset_cursor();
   }
 
+  fn enter_space_or_submit(&self) {
+    let (input, selected_word) = {
+      let state = STATE.get().unwrap().read().unwrap();
+      (
+        state.input.text.clone(),
+        state.words[state.list_state.selected().unwrap()].clone(),
+      )
+    };
+
+    if input.len().saturating_add(1) >= selected_word.word.word.len() {
+      self.submit_input();
+      return;
+    }
+    self.enter_char(' ');
+  }
+
   pub fn handle_keys(&self, key: KeyEvent) -> Result<bool> {
     if key.kind != KeyEventKind::Press {
       return Ok(false);
@@ -155,6 +171,7 @@ impl Input {
       },
       KeyModifiers::NONE => match key.code {
         KeyCode::Enter => self.submit_input(),
+        KeyCode::Char(' ') => self.enter_space_or_submit(),
         KeyCode::Char(to_insert) => self.enter_char(to_insert),
         KeyCode::Backspace => self.delete_char(),
         KeyCode::Left => self.move_cursor_left(),

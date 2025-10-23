@@ -25,7 +25,7 @@ impl WordList {
     }
 
     if config.shuffle {
-      words.shuffle(&mut rand::thread_rng());
+      words.shuffle(&mut rand::rng());
     }
 
     if words.is_empty() {
